@@ -35,19 +35,30 @@ for user_folder in glob.glob('dataset/*'):
                 # Create a list to store the trail coordinates
                 trail_coordinates = []
 
-                # Iterate over the rows and extract latitudes and longitudes
-                for row in reader:
-                    latitude, longitude = float(row[0]), float(row[1])
-                    trail_coordinates.append((latitude, longitude))
-
                 # Get the color based on the vehicle type
                 color = vehicle_colors.get(vehicle_type, 'gray')  # Default to gray if type is unknown
 
                 # Create the tooltip text
                 tooltip = f'{user_id} - {vehicle_type} - {formatted_date}'
 
-                # Add a polyline to the map with the trail coordinates, color, and tooltip
+                # Iterate over the rows and extract latitudes and longitudes
+                for row in reader:
+                    latitude, longitude = float(row[0]), float(row[1])
+                    # folium.CircleMarker(
+                    #     location=[latitude, longitude],
+                    #     radius=1,
+                    #     color=color,
+                    #     tooltip=tooltip,
+                    #     weight=1,
+                    #     fill_opacity=0.6,
+                    #     opacity=1,
+                    # ).add_to(m)
+
+                    trail_coordinates.append((latitude, longitude))
+
+                # # Add a polyline to the map with the trail coordinates, color, and tooltip
                 folium.PolyLine(trail_coordinates, color=color, tooltip=tooltip).add_to(m)
+
 
 # Save the map to an HTML file
 m.save('map.html')
