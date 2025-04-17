@@ -6,12 +6,6 @@ import os
 # Create base map
 m = folium.Map(location=[43.041169, 12.560277], zoom_start=12)
 
-# Bounding box coordinates
-min_lon = 11.891377
-max_lon = 13.262951
-max_lat = 43.617910
-min_lat = 42.362570
-
 # Step 1: Extract cell_ids and process trails from both dataset/*.csv and dataset-old/* folders
 observed_cell_ids = set()
 
@@ -57,25 +51,27 @@ for folder in ['dataset', 'dataset-old/bike', 'dataset-old/car', 'dataset-old/tr
                 trail_color = 'green' if folder.startswith('dataset-old') else 'blue'
                 folium.PolyLine(trail_coordinates, color=trail_color, tooltip=formatted_date).add_to(m)
 
-# Step 2: Read and filter towers from tim_lteitaly.clf file
+# Step 2: Read and filter towers from tim_lteitaly.clf and vodafone_lteitaly.clf files
 tower_locations = []
 
-with open('towers/tim_lteitaly.clf', 'r') as tower_file:
-    for line in tower_file:
-        parts = line.strip().split(';')  # Split by semicolon
-        if len(parts) < 6:
-            continue
+# Loop through both tim_lteitaly.clf and vodafone_lteitaly.clf files
+for tower_file in ['towers/tim_lteitaly.clf', 'towers/vodafone_lteitaly.clf']:
+    with open(tower_file, 'r') as file:
+        for line in file:
+            parts = line.strip().split(';')  # Split by semicolon
+            if len(parts) < 6:
+                continue
 
-        try:
-            cell_id = int(parts[1])  # cell_id in the 2nd column
-            lat = float(parts[4])  # latitude in the 5th column
-            lon = float(parts[5])  # longitude in the 6th column
-        except ValueError:
-            continue
+            try:
+                cell_id = int(parts[1])  # cell_id in the 2nd column
+                lat = float(parts[4])  # latitude in the 5th column
+                lon = float(parts[5])  # longitude in the 6th column
+            except ValueError:
+                continue
 
-        # Only add tower if its cell_id is in observed_cell_ids
-        if cell_id in observed_cell_ids:
-            tower_locations.append((lat, lon, cell_id))
+            # Only add tower if its cell_id is in observed_cell_ids
+            if cell_id in observed_cell_ids:
+                tower_locations.append((lat, lon, cell_id))
 
 # Step 3: Add filtered towers with smaller markers
 for lat, lon, cell_id in tower_locations:
